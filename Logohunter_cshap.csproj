@@ -67,7 +67,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="features.csv" />
     <None Include="packages.config" />
+    <None Include="yolo_logohunter.cfg" />
+    <None Include="yolo_logohunter.names" />
+    <None Include="yolo_logohunter.weights" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="lexus.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\Alturos.Yolo.2.6.4\build\net461\Alturos.Yolo.targets" Condition="Exists('packages\Alturos.Yolo.2.6.4\build\net461\Alturos.Yolo.targets')" />
