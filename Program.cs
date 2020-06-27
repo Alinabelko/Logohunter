@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Logohunter_cshap;
+using System;
 using System.Collections.Generic;
 
 namespace Logohunter_charp
