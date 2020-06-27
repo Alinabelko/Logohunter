@@ -54,8 +54,8 @@ namespace Logohunter_cshap
 			// - The colors, represented as R, G, B in 1-byte each were converted to
 			//   float using (value - Mean)/Scale.
 
-			const int W = 224;
-			const int H = 224;
+			const int W = 200;
+			const int H = 200;
 			const float Mean = 117;
 			const float Scale = 1;
 

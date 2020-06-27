@@ -13,6 +13,9 @@ namespace Logohunter_charp
             List<string> images = new List<string> { "test.jpg" };
 
             logohunter.RunDetection(images);
+            logohunter.ExtractFeatures("test.jpg");
+            logohunter.LoadFeatures();
+            //logohunter.CalculateCosineSimilarity();
         }
     }
 }
