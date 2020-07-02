@@ -38,6 +38,32 @@ namespace Logohunter_cshap
 			}
 		}
 
+		public static TFTensor CreateTensorFromBitmap(Bitmap bitmap, TFDataType destinationDataType = TFDataType.Float)
+		{
+			ImageConverter converter = new ImageConverter();
+			var contents = (byte[])converter.ConvertTo(bitmap, typeof(byte[]));
+
+			// DecodeJpeg uses a scalar String-valued tensor as input.
+			var tensor = TFTensor.CreateString(contents);
+
+			TFOutput input, output;
+
+			// Construct a graph to normalize the image
+			using (var graph = ConstructGraphToNormalizeImage(out input, out output, destinationDataType))
+			{
+				// Execute that graph to normalize this one image
+				using (var session = new TFSession(graph))
+				{
+					var normalized = session.Run(
+						inputs: new[] { input },
+						inputValues: new[] { tensor },
+						outputs: new[] { output });
+
+					return normalized[0];
+				}
+			}
+		}
+
 		// The inception model takes as input the image described by a Tensor in a very
 		// specific normalized format (a particular image size, shape of the input tensor,
 		// normalized pixel values etc.).

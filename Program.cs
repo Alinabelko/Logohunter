@@ -8,14 +8,14 @@ namespace Logohunter_charp
     {
         static void Main(string[] args)
         {
-            Logohunter logohunter = new Logohunter();
+            List<string> images = new List<string> { @"C:\Users\Alina\source\repos\new\Logohunter_cshap\lexus.jpg" };
+            List<string> brands = new List<string> { @"C:\Users\Alina\source\repos\new\Logohunter_cshap\test_lexus.png" };
 
-            List<string> images = new List<string> { "test.jpg" };
+            //Logohunter logohunter = new Logohunter(brands);
+            //logohunter.RunDetection(images);
 
-            logohunter.RunDetection(images);
-            logohunter.ExtractFeatures("test.jpg");
-            logohunter.LoadFeatures();
-            //logohunter.CalculateCosineSimilarity();
+            Logohunter logohunter = new Logohunter(@"C:\Users\Alina\source\repos\new\Logohunter_cshap\data\brands");
+            logohunter.RunDetection(@"C:\Users\Alina\source\repos\new\Logohunter_cshap\data\images");
         }
     }
 }
