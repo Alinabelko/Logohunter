@@ -130,10 +130,10 @@ namespace Logohunter_cshap
 			return tensor;
 		}
 
-		public static Bitmap CropImage(Image source, int x1, int y1, int x2, int y2)
+		public static Bitmap CropImage(Image source, int x1, int y1, int width, int height)
 		{
 			//Rectangle crop = new Rectangle(Math.Min(x1,x2), Math.Min(y1, y2), Math.Abs(x2-x1), Math.Abs(y2 - y1));
-			Rectangle crop = new Rectangle(x1, y1, x2, y2);
+			Rectangle crop = new Rectangle(x1, y1, width, height);
 
 			var bmp = new Bitmap(crop.Width, crop.Height);
 			using (var gr = Graphics.FromImage(bmp))

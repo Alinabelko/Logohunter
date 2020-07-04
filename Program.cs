@@ -8,14 +8,10 @@ namespace Logohunter_charp
     {
         static void Main(string[] args)
         {
-            List<string> images = new List<string> { @"C:\Users\Alina\source\repos\new\Logohunter_cshap\lexus.jpg" };
-            List<string> brands = new List<string> { @"C:\Users\Alina\source\repos\new\Logohunter_cshap\test_lexus.png" };
 
-            //Logohunter logohunter = new Logohunter(brands);
-            //logohunter.RunDetection(images);
+            Logohunter logohunter = new Logohunter(@"\data\brands");
 
-            Logohunter logohunter = new Logohunter(@"C:\Users\Alina\source\repos\new\Logohunter_cshap\data\brands");
-            logohunter.RunDetection(@"C:\Users\Alina\source\repos\new\Logohunter_cshap\data\images");
+            logohunter.RunDetection(@"data\images");
         }
     }
 }

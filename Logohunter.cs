@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net.Http.Headers;
+using System.Windows.Markup;
 using TensorFlow;
 
 namespace Logohunter_cshap
@@ -19,24 +19,18 @@ namespace Logohunter_cshap
 
         private Dictionary<string, double> _cutoffs;
 
-        private const string CFG = @"C:\Users\Alina\source\repos\new\Logohunter_cshap\yolo_logohunter.cfg";
-        private const string WEIGHTS = @"C:\Users\Alina\source\repos\new\Logohunter_cshap\yolo_logohunter.weights";
-        private const string NAMES = @"C:\Users\Alina\source\repos\new\Logohunter_cshap\yolo_logohunter.names";
-        private const string INCEPTION = @"C:\Users\Alina\source\repos\new\Logohunter_cshap\inception_logohunter.pb";
-        private const string FEATURES = @"C:\Users\Alina\source\repos\new\Logohunter_cshap\features.csv";
+        private const string CFG = "yolo_logohunter.cfg";
+        private const string WEIGHTS = "yolo_logohunter.weights";
+        private const string NAMES = "yolo_logohunter.names";
+        private const string INCEPTION = "inception_logohunter.pb";
+        //possible values flickr27_features.csv or logosinthewild_features.csv
+        private const string FEATURES = "flickr27_features.csv";
         public Logohunter(List<string> brandsPaths)
         {
-            Stopwatch sw;
-            sw = Stopwatch.StartNew();
             _yolowrapper = new YoloWrapper(CFG, WEIGHTS, NAMES);
-            Console.WriteLine($"Yolo initialization: {sw.ElapsedMilliseconds}");
-            sw = Stopwatch.StartNew();
             _graph = new TFGraph();
             _graph.Import(File.ReadAllBytes(INCEPTION));
-            Console.WriteLine($"Inception initialization: {sw.ElapsedMilliseconds}");
-            sw = Stopwatch.StartNew();
             _cutoffs = LoadBrandsComputeCutoffs(brandsPaths, LoadFeatures());
-            Console.WriteLine($"ComputeCutoffs: {sw.ElapsedMilliseconds} for single brand");
         }
 
         public Logohunter(string brandsFolder)
@@ -63,7 +57,7 @@ namespace Logohunter_cshap
                         if(similarity > brand.Value)
                         {
                             Random random = new Random();
-                            bmp.Save($@"C:\Users\Alina\source\repos\new\Logohunter_cshap\data\results\{Path.GetFileNameWithoutExtension(brand.Key)}_{random.Next()}.jpg");
+                            bmp.Save($@"data\results\{Path.GetFileNameWithoutExtension(brand.Key)}_{random.Next()}.jpg");
                         }
                     }                  
                 }
@@ -80,14 +74,21 @@ namespace Logohunter_cshap
                 {
                     Bitmap bmp = ImageUtil.CropImage(new Bitmap(imagePath), candidate.X, candidate.Y, candidate.Width, candidate.Height);
                     float[] candidateFeatures = ExtractFeatures(bmp);
+                    double maxSimilarity = 0;
+                    string maxSimilarBrand = "";
                     foreach (var brand in _cutoffs)
                     {
                         var similarity = ComputeCosineSimilatity(candidateFeatures, ExtractFeatures(new Bitmap(brand.Key)));
-                        if (similarity > brand.Value)
+                        if (similarity > brand.Value && (similarity - brand.Value) > maxSimilarity)
                         {
-                            Random random = new Random();
-                            bmp.Save($@"C:\Users\Alina\source\repos\new\Logohunter_cshap\data\results\{Path.GetFileNameWithoutExtension(brand.Key)}_{random.Next()}.jpg");
+                            maxSimilarity = similarity;
+                            maxSimilarBrand = brand.Key;
                         }
+                    }
+                    if (maxSimilarity != 0)
+                    {
+                        Random random = new Random();
+                        bmp.Save($@"data\results\{Path.GetFileNameWithoutExtension(maxSimilarBrand)}_{random.Next()}.jpg");
                     }
                 }
             }
@@ -109,13 +110,13 @@ namespace Logohunter_cshap
             //features shape: [1,4,4,1280]
             float[] flattenFeatures = new float[20480];
             int n = 0;
-            for (int i = 0; i < 4; i++)
+            for (int k = 0; k < 1280; k++)
             {
                 for (int j = 0; j < 4; j++)
                 {
-                    for (int k = 0; k < 1280; k++)
+                    for (int i = 0; i < 4; i++)
                     {
-                        flattenFeatures[n] = features[0, i, j, k];
+                        flattenFeatures[n] = features[0, j, i, k];
                         n++;
                     }
                 }
@@ -138,13 +139,13 @@ namespace Logohunter_cshap
             var features = (float[,,,])result.GetValue(jagged: false);
             float[] flattenFeatures = new float[20480];
             int n = 0;
-            for (int i = 0; i < 4; i++)
+            for (int k = 0; k < 1280; k++)            
             {
                 for (int j = 0; j < 4; j++)
                 {
-                    for (int k = 0; k < 1280; k++)
+                    for (int i = 0; i < 4; i++)
                     {
-                        flattenFeatures[n] = features[0, i, j, k];
+                        flattenFeatures[n] = features[0, j, i, k];
                         n++;
                     }
                 }
@@ -154,24 +155,40 @@ namespace Logohunter_cshap
 
         private List<float[]> LoadFeatures()
         {
-            Stopwatch sw;
-            sw = Stopwatch.StartNew();
             List<float[]> features = new List<float[]>();
             using (var reader = new StreamReader(FEATURES))
             {               
                 while (!reader.EndOfStream)
                 {
                     var line = reader.ReadLine();
-                    var values = line.Split(',');
+                    var values = line.Split('\t');
+                    if(values.Length != 20480)
+                    {
+                        values = line.Split(',');
+                    }
                     float[] vector = new float[values.Length];                   
                     for (int i = 0; i < vector.Length; i++)
                     {
-                        vector[i] = float.Parse(values[i], NumberStyles.Number | NumberStyles.AllowExponent, new CultureInfo("en-US"));
+                        if (string.IsNullOrEmpty(values[i])){
+                            vector[i] = 0;
+                        }
+                        else {
+                            if(FEATURES == "logosinthewild_features.csv")
+                            {
+                                vector[i] = float.Parse(values[i], NumberStyles.Number | NumberStyles.AllowExponent, new CultureInfo("en-US"));
+                            }
+                            else
+                            {
+                                vector[i] = float.Parse(values[i], CultureInfo.InvariantCulture);
+                            }                         
+                        }
+                    
                     }
+                    
                     features.Add(vector);
+                    Console.WriteLine($"Feature readed: {features.Count}");
                 }
             }
-            Console.WriteLine($"Features loaded in {sw.ElapsedMilliseconds}");
             return features;
         }
 
@@ -181,8 +198,8 @@ namespace Logohunter_cshap
             for (int i = 0; i < brands.Count; i++)
             {
                 var brandFeatures = ExtractFeatures(brands[i]);
-                //top compute 95% cutoff of similarity distibution we save only top 5% values of similarity and choose min of them.
-                double[] topFivePercentSimilarity = new double[1024];
+                //to compute 95% cutoff of similarity distibution we save only top 5% values of similarity and choose min of them.
+                double[] topFivePercentSimilarity = new double[(int)(featuresList.Count*0.05)];
                 foreach (float[] features in featuresList)
                 {
                     double similarity = ComputeCosineSimilatity(brandFeatures, features);
@@ -209,6 +226,41 @@ namespace Logohunter_cshap
                 squareFeatures += features[i] * features[i];
             }
             return sum / (Math.Sqrt(squareBrand) * Math.Sqrt(squareFeatures));
+        }
+
+        /// <summary>
+        /// Computes logo features of LogosInTheWildv2 dataset for extractor model
+        /// </summary>
+        /// <param name="datasetFolder">Folder with all logos images.</param>
+        /// <param name="featuresFile">Output features file name.</param>
+        public void CreateFeatures(string datasetFolder, string Rois, string featuresFile)
+        {
+            var file = File.CreateText(featuresFile);
+            List<float[]> features = new List<float[]>();
+            System.Globalization.CultureInfo customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
+            customCulture.NumberFormat.NumberDecimalSeparator = ".";
+
+            System.Threading.Thread.CurrentThread.CurrentCulture = customCulture;
+            using (var reader = new StreamReader(Rois))
+            {
+                while (!reader.EndOfStream)
+                {
+                    var line = reader.ReadLine();
+                    var values = line.Split(' ');
+                    var logo = ImageUtil.CropImage(
+                        Image.FromFile(@"flickr_logos_27_dataset_images\" + values[0]), 
+                        int.Parse(values[3]),
+                        int.Parse(values[4]),
+                        int.Parse(values[5]) - int.Parse(values[3]),
+                        int.Parse(values[6]) - int.Parse(values[4]));
+                  
+                    var feature = ExtractFeatures(logo);
+                    features.Add(feature);
+                    file.WriteLine(string.Join("\t", feature));
+                    Console.WriteLine($"Feature created: {features.Count}");
+                }
+            }
+            file.Close();
         }
     }
 }
