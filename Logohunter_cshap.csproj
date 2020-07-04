@@ -98,42 +98,7 @@
     <None Include="yolo_logohunter.weights" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="data\brands\test_adidas1.png" />
-    <Content Include="data\brands\test_aldi.jpg" />
-    <Content Include="data\brands\test_batman.jpg" />
-    <Content Include="data\brands\test_champions.jpg" />
-    <Content Include="data\brands\test_duff.jpg" />
-    <Content Include="data\brands\test_golden_state.jpg" />
-    <Content Include="data\brands\test_lexus.png" />
-    <Content Include="data\brands\test_lexus1.png" />
-    <Content Include="data\brands\test_nike.png" />
-    <Content Include="data\brands\test_puma.png" />
-    <Content Include="data\brands\test_puma1.png" />
-    <Content Include="data\brands\test_robin.png" />
-    <Content Include="data\brands\test_underarmour.jpg" />
-    <Content Include="data\brands\test_wellsfargo.png" />
-    <Content Include="data\images\test.jpg" />
-    <Content Include="data\images\test10.jpg" />
-    <Content Include="data\images\test11.jpg" />
-    <Content Include="data\images\test12.jpg" />
-    <Content Include="data\images\test13.jpg" />
-    <Content Include="data\images\test14.jpg" />
-    <Content Include="data\images\test15.jpg" />
-    <Content Include="data\images\test16.jpg" />
-    <Content Include="data\images\test1a.jpg" />
-    <Content Include="data\images\test1b.jpg" />
-    <Content Include="data\images\test2a.jpg" />
-    <Content Include="data\images\test2b.jpg" />
-    <Content Include="data\images\test3.jpg" />
-    <Content Include="data\images\test4.jpg" />
-    <Content Include="data\images\test5.jpg" />
-    <Content Include="data\images\test6.jpg" />
-    <Content Include="data\images\test7.jpg" />
-    <Content Include="data\images\test8.jpg" />
-    <Content Include="data\images\test9.jpg" />
-    <Content Include="data\images\testb.jpg" />
-    <Content Include="lexus.jpg" />
-    <Content Include="test_lexus.png" />
+    <Folder Include="data\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\Alturos.Yolo.2.6.4\build\net461\Alturos.Yolo.targets" Condition="Exists('packages\Alturos.Yolo.2.6.4\build\net461\Alturos.Yolo.targets')" />
